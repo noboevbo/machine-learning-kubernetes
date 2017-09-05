@@ -1,0 +1,43 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: caffe-cuda-ssh
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: caffe-cuda-ssh
+    spec:
+      volumes:
+      - hostPath:
+          path: /var/lib/nvidia-docker/volumes/nvidia_driver/375.82
+        name: nvidia-driver
+      containers:
+      - name: caffe-cuda-ssh
+        image: noboevbo/caffe-cuda-ssh:latest
+        ports:
+        - containerPort: 22
+        resources:
+          limits:
+            alpha.kubernetes.io/nvidia-gpu: 1
+        volumeMounts:
+        - mountPath: /usr/local/nvidia
+          name: nvidia-driver
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: caffe-cuda-ssh-service
+  labels:
+    app: caffe-cuda-ssh
+spec:
+  selector:
+    app: caffe-cuda-ssh
+  ports:
+  - port: 22
+    protocol: TCP
+    nodePort: 30001
+  type: NodePort
+---
