@@ -10,10 +10,6 @@ spec:
       labels:
         app: caffe-cuda-ssh
     spec:
-      volumes:
-      - hostPath:
-          path: /var/lib/nvidia-docker/volumes/nvidia_driver/375.82
-        name: nvidia-driver
       containers:
       - name: caffe-cuda-ssh
         image: noboevbo/caffe-cuda-ssh:latest
@@ -23,8 +19,18 @@ spec:
           limits:
             alpha.kubernetes.io/nvidia-gpu: 1
         volumeMounts:
-        - mountPath: /usr/local/nvidia
-          name: nvidia-driver
+        - name: nvidia-driver
+          mountPath: /usr/local/nvidia
+        - name: nfs-kuberstore
+          mountPath: /data
+
+      volumes:
+      - name: nvidia-driver
+        hostPath:
+          path: /var/lib/nvidia-docker/volumes/nvidia_driver/375.82
+      - name: nfs-kuberstore
+        persistentVolumeClaim:
+          claimName: nfs-kuberstore
 ---
 apiVersion: v1
 kind: Service
@@ -39,5 +45,5 @@ spec:
   - port: 22
     protocol: TCP
     nodePort: 30001
-  type: NodePort
+  type: LoadBalancer
 ---

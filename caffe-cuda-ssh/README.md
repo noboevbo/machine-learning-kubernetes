@@ -4,3 +4,14 @@ This deployment provides Caffe (CUDA) images with a enabled SSH service. The ser
 Mainly used for development via PyCharm Remote Interpreter.
 
 Scale: kubectl scale deployment caffe-cuda-ssh --replicas=1
+
+Useage example:
+kubectl create -f deployment.yaml
+ssh root@<node> -p 30001 (pw: root)
+
+Pycharm: Setup remote interpreter and deployment via SFTP
+Maybe required: Setup environment variables in pycharm:
+
+PATH = /usr/local/nvidia/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+LD_LIBRARY_PATH = /usr/local/nvidia/lib:/usr/local/nvidia/lib64
+PYTHONPATH = /root/caffe/python:
