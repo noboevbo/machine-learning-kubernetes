@@ -2,17 +2,17 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: caffe-cuda-ssh-pubkey
+  name: anaconda3-opencv-ssh-pubkey
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: caffe-cuda-ssh-pubkey
+        app: anaconda3-opencv-ssh-pubkey
     spec:
       containers:
-      - name: caffe-cuda-ssh
-        image: noboevbo/caffe-cuda-ssh-pubkey:latest
+      - name: anaconda3-opencv-ssh-pubkey
+        image: noboevbo/anaconda3-opencv-ssh-pubkey:latest
         lifecycle: #Workaround - defaultMode in secret seems buggy
           postStart:
             exec:
@@ -24,21 +24,13 @@ spec:
         args: ["-c", "/usr/sbin/sshd -D"]
         ports:
         - containerPort: 22
-        resources:
-          limits:
-            alpha.kubernetes.io/nvidia-gpu: 1
         volumeMounts:
-        - name: nvidia-driver
-          mountPath: /usr/local/nvidia
         - name: nfs-kuberstore
           mountPath: /data
         - name: ssh-publickey
           mountPath: /root/.ssh
 
       volumes:
-      - name: nvidia-driver
-        hostPath:
-          path: /var/lib/nvidia-docker/volumes/nvidia_driver/375.82
       - name: nfs-kuberstore
         persistentVolumeClaim:
           claimName: nfs-kuberstore
@@ -50,15 +42,15 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: caffe-cuda-ssh-pubkey-service
+  name: anaconda3-opencv-ssh-pubkey-service
   labels:
-    app: caffe-cuda-ssh-pubkey
+    app: anaconda3-opencv-ssh-pubkey
 spec:
   selector:
-    app: caffe-cuda-ssh-pubkey
+    app: anaconda3-opencv-ssh-pubkey
   ports:
   - port: 22
     protocol: TCP
-    nodePort: 30001
+    nodePort: 30002
   type: NodePort
 ---

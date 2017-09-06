@@ -1,0 +1,40 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: anaconda3-opencv-ssh
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: anaconda3-opencv-ssh
+    spec:
+      containers:
+      - name: anaconda3-opencv-ssh
+        image: noboevbo/anaconda3-opencv-ssh:latest
+        ports:
+        - containerPort: 22
+        volumeMounts:
+        - name: nfs-kuberstore
+          mountPath: /data
+      volumes:
+      - name: nfs-kuberstore
+        persistentVolumeClaim:
+          claimName: nfs-kuberstore
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: anaconda3-opencv-ssh-service
+  labels:
+    app: anaconda3-opencv-ssh
+spec:
+  selector:
+    app: anaconda3-opencv-ssh
+  ports:
+  - port: 22
+    protocol: TCP
+    nodePort: 30002
+  type: NodePort
+---
