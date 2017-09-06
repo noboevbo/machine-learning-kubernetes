@@ -1,0 +1,33 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: openpose-job
+spec:
+  template:
+    metadata:
+      name: openpose-job
+    spec:
+      containers:
+      - name: openpose
+        image: mjsobrep/openpose
+        command: ["/bin/bash"]
+        args: ["-c", "./build/examples/openpose/openpose.bin --video examples/media/video.avi --write_video ../data/result.avi --write_keypoint_json ../data/poses --no_display"]
+        resources:
+          limits:
+            alpha.kubernetes.io/nvidia-gpu: 1
+        volumeMounts:
+        - name: nvidia-driver
+          mountPath: /usr/local/nvidia
+        - name: nfs-kuberstore
+          mountPath: /data
+
+      volumes:
+      - name: nvidia-driver
+        hostPath:
+          path: /var/lib/nvidia-docker/volumes/nvidia_driver/375.82
+      - name: nfs-kuberstore
+        persistentVolumeClaim:
+          claimName: nfs-kuberstore
+        
+      restartPolicy: Never
