@@ -12,7 +12,16 @@ spec:
     spec:
       containers:
       - name: caffe-cuda-ssh
-        image: noboevbo/caffe-cuda-ssh:latest
+        image: noboevbo/caffe-cuda-ssh-pubkey:latest
+        lifecycle: #Workaround - defaultMode in secret seems buggy
+          postStart:
+            exec:
+              command:
+              - bash
+              - -c
+              - chmod 400 /root/.ssh
+        command: ["/bin/bash"]
+        args: ["-c", "/usr/sbin/sshd -D"]
         ports:
         - containerPort: 22
         resources:
@@ -23,6 +32,9 @@ spec:
           mountPath: /usr/local/nvidia
         - name: nfs-kuberstore
           mountPath: /data
+        - name: ssh-publickey
+          mountPath: /root/.ssh
+
       volumes:
       - name: nvidia-driver
         hostPath:
@@ -30,6 +42,10 @@ spec:
       - name: nfs-kuberstore
         persistentVolumeClaim:
           claimName: nfs-kuberstore
+      - name: ssh-publickey
+        secret: 
+          secretName: ssh-authorized-keys-noboevbo-secret
+          defaultMode: 0400
 ---
 apiVersion: v1
 kind: Service
